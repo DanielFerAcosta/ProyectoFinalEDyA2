@@ -3,7 +3,7 @@
   "version": 1,
   "cli": {
     "packageManager": "npm",
-    "analytics": "8a9fba67-8a6c-47f5-8379-5b48f59f9b34"
+    "analytics": "0bd8188f-383f-49ee-a390-2f7bc0de3981"
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -11,32 +11,7 @@
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
-          "style": "scss",
-          "type": "component",
-          "addTypeToClassName": false
-        },
-        "@schematics/angular:directive": {
-          "type": "directive",
-          "addTypeToClassName": false
-        },
-        "@schematics/angular:service": {
-          "type": "service",
-          "addTypeToClassName": false
-        },
-        "@schematics/angular:guard": {
-          "typeSeparator": "."
-        },
-        "@schematics/angular:interceptor": {
-          "typeSeparator": "."
-        },
-        "@schematics/angular:module": {
-          "typeSeparator": "."
-        },
-        "@schematics/angular:pipe": {
-          "typeSeparator": "."
-        },
-        "@schematics/angular:resolver": {
-          "typeSeparator": "."
+          "style": "scss"
         }
       },
       "root": "",
