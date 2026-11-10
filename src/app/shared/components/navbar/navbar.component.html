@@ -1,7 +1,4 @@
-<header
-  class="navbar"
-  (keydown.escape)="closeMenu()"
->
+<header class="navbar" (keydown.escape)="closeMenu()">
   <div class="container navbar__container">
     <a
       class="brand"
@@ -9,13 +6,8 @@
       aria-label="Entrena, inicio"
       (click)="closeMenu()"
     >
-      <span class="brand__icon" aria-hidden="true">
-        E
-      </span>
-
-      <span>
-        entrena<span class="brand__accent">.</span>
-      </span>
+      <span class="brand__icon" aria-hidden="true">E</span>
+      <span>entrena<span class="brand__accent">.</span></span>
     </a>
 
     <button
@@ -23,20 +15,29 @@
       type="button"
       aria-controls="main-navigation"
       [attr.aria-expanded]="menuOpen()"
+      [attr.aria-label]="
+        menuOpen() ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'
+      "
       (click)="toggleMenu()"
     >
-      {{ menuOpen() ? 'Cerrar menú' : 'Abrir menú' }}
+      <span aria-hidden="true">
+        {{ menuOpen() ? '✕' : '☰' }}
+      </span>
+      <span>{{ menuOpen() ? 'Cerrar' : 'Menú' }}</span>
     </button>
 
     <nav
       id="main-navigation"
       class="navigation"
-      aria-label="Navegación principal"
       [class.navigation--open]="menuOpen()"
+      aria-label="Navegación principal"
     >
       <a
         class="navigation__link"
         routerLink="/"
+        routerLinkActive="navigation__link--active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        ariaCurrentWhenActive="page"
         (click)="closeMenu()"
       >
         Inicio
@@ -44,18 +45,38 @@
 
       <a
         class="navigation__link"
-        href="#funcionalidades"
+        routerLink="/"
+        fragment="ejercicios"
         (click)="closeMenu()"
       >
-        Funcionalidades
+        Ejercicios
       </a>
 
       <a
         class="navigation__link"
-        href="#como-funciona"
+        routerLink="/"
+        fragment="como-funciona"
         (click)="closeMenu()"
       >
         Cómo funciona
+      </a>
+
+      <a
+        class="navigation__link"
+        routerLink="/login"
+        routerLinkActive="navigation__link--active"
+        ariaCurrentWhenActive="page"
+        (click)="closeMenu()"
+      >
+        Iniciar sesión
+      </a>
+
+      <a
+        class="button button--primary navigation__login"
+        routerLink="/registro"
+        (click)="closeMenu()"
+      >
+        Crear cuenta
       </a>
     </nav>
   </div>
