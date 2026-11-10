@@ -1,65 +1,66 @@
-import { Component, inject, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  effect,
+  inject,
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
+import {
+  AuthService,
+  UserProfile,
+} from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [RouterLink],
-  template: `
-    <section class="auth-page">
-      <div class="auth-card">
-        <h1>Mi panel</h1>
-
-        <p>Has iniciado sesión como:</p>
-        <p>{{ auth.user()?.email }}</p>
-
-        <p>
-          Aquí conectaremos las funcionalidades privadas
-          de la aplicación.
-        </p>
-
-        @if (error()) {
-          <p class="auth-error" role="alert">{{ error() }}</p>
-        }
-
-        <button
-          type="button"
-          (click)="logout()"
-          [disabled]="loading()"
-        >
-          {{ loading() ? 'Saliendo…' : 'Cerrar sesión' }}
-        </button>
-
-        <p><a routerLink="/">Volver al inicio</a></p>
-      </div>
-    </section>
-  `,
+  templateUrl: './dashboard.component.html',
+  styleUrl: './dashboard.component.scss',
 })
-export class DashboardComponent {
-  readonly auth = inject(AuthService);
-
+export class DashboardComponent implements OnInit {
+  protected readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  readonly loading = signal(false);
-  readonly error = signal('');
+  protected profile: UserProfile | null = null;
+  protected loading = true;
+  protected signingOut = false;
+  protected message = '';
 
-  async logout(): Promise<void> {
-    if (this.loading()) {
+  constructor() {
+    effect(() => {
+      if (!this.auth.user()) {
+        void this.router.navigateByUrl('/login');
+      }
+    });
+  }
+
+  async ngOnInit(): Promise<void> {
+    try {
+      this.profile = await this.auth.getProfile();
+    } catch {
+      this.message =
+        'No se pudo cargar tu perfil. Comprueba la conexión y la configuración de la base de datos.';
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  protected async logout(): Promise<void> {
+    if (this.signingOut) {
       return;
     }
 
-    this.loading.set(true);
-    this.error.set('');
+    this.signingOut = true;
+    this.message = '';
 
     try {
-      await this.auth.signOut();
+      await this.auth.logout();
       await this.router.navigateByUrl('/login');
-    } catch (error: unknown) {
-      console.error('Error al cerrar sesión:', error);
-      this.error.set('No se pudo cerrar sesión. Inténtalo de nuevo.');
+    } catch {
+      this.message =
+        'No se pudo cerrar la sesión. Inténtalo nuevamente.';
     } finally {
-      this.loading.set(false);
+      this.signingOut = false;
     }
   }
 }
