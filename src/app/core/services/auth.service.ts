@@ -1,142 +1,113 @@
 import {
-  DestroyRef,
   Injectable,
+  OnDestroy,
+  computed,
   inject,
   signal,
 } from '@angular/core';
-import type { User } from '@supabase/supabase-js';
+import type { Session } from '@supabase/supabase-js';
 import { SupabaseService } from './supabase.service';
 
-export interface SignUpResult {
-  needsEmailConfirmation: boolean;
+export interface UserProfile {
+  id: string;
+  full_name: string;
+  created_at: string;
 }
 
 @Injectable({
   providedIn: 'root',
 })
-export class AuthService {
-  private readonly supabase =
-    inject(SupabaseService).client;
+export class AuthService implements OnDestroy {
+  private readonly supabase = inject(SupabaseService).client;
+  private readonly sessionState = signal<Session | null>(null);
 
-  private readonly destroyRef = inject(DestroyRef);
+  readonly session = this.sessionState.asReadonly();
+  readonly user = computed(() => this.sessionState()?.user ?? null);
 
-  private readonly currentUser =
-    signal<User | null>(null);
+  private resolveReady!: () => void;
 
-  private authEventVersion = 0;
+  readonly ready = new Promise<void>((resolve) => {
+    this.resolveReady = resolve;
+  });
 
-  readonly user = this.currentUser.asReadonly();
+  private readonly subscription = this.supabase.auth.onAuthStateChange(
+    (_event, session) => {
+      this.sessionState.set(session);
+      this.resolveReady();
+    },
+  ).data.subscription;
 
-  readonly ready: Promise<void>;
-
-  constructor() {
-    const { data } =
-      this.supabase.auth.onAuthStateChange(
-        (_event, session) => {
-          this.authEventVersion += 1;
-
-          this.currentUser.set(
-            session?.user ?? null,
-          );
+  async register(name: string, email: string, password: string) {
+    const { data, error } = await this.supabase.auth.signUp({
+      email: email.trim(),
+      password,
+      options: {
+        data: {
+          full_name: name.trim(),
         },
-      );
-
-    this.destroyRef.onDestroy(() => {
-      data.subscription.unsubscribe();
+        emailRedirectTo: `${window.location.origin}/login`,
+      },
     });
-
-    this.ready = this.restoreSession();
-
-    // Registrar el fallo inicial sin ocultarlo a quien espere ready.
-    void this.ready.catch((error: unknown) => {
-      console.error(
-        'Error al recuperar la sesión:',
-        error,
-      );
-    });
-  }
-
-  async signUp(
-    email: string,
-    password: string,
-  ): Promise<SignUpResult> {
-    await this.ready;
-
-    const { data, error } =
-      await this.supabase.auth.signUp({
-        email: email.trim(),
-        password,
-      });
 
     if (error) {
       throw error;
     }
 
     if (data.session) {
-      this.currentUser.set(data.session.user);
+      this.sessionState.set(data.session);
     }
 
-    return {
-      needsEmailConfirmation:
-        data.session === null,
-    };
+    return data;
   }
 
-  async signIn(
-    email: string,
-    password: string,
-  ): Promise<void> {
+  async login(email: string, password: string): Promise<void> {
+    const { data, error } = await this.supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    this.sessionState.set(data.session);
+  }
+
+  async logout(): Promise<void> {
+    const { error } = await this.supabase.auth.signOut({
+      scope: 'local',
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    this.sessionState.set(null);
+  }
+
+  async getProfile(): Promise<UserProfile> {
     await this.ready;
 
-    const { data, error } =
-      await this.supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
+    const currentUser = this.user();
+
+    if (!currentUser) {
+      throw new Error('No hay una sesión activa.');
+    }
+
+    const { data, error } = await this.supabase
+      .from('profiles')
+      .select('id, full_name, created_at')
+      .eq('id', currentUser.id)
+      .single();
 
     if (error) {
       throw error;
     }
 
-    if (!data.session) {
-      throw new Error(
-        'No se pudo establecer la sesión.',
-      );
-    }
-
-    this.currentUser.set(data.session.user);
+    return data;
   }
 
-  async signOut(): Promise<void> {
-    await this.ready;
-
-    const { error } =
-      await this.supabase.auth.signOut();
-
-    if (error) {
-      throw error;
-    }
-
-    this.currentUser.set(null);
-  }
-
-  private async restoreSession(): Promise<void> {
-    const version = this.authEventVersion;
-
-    const { data, error } =
-      await this.supabase.auth.getSession();
-
-    if (error) {
-      throw error;
-    }
-
-    if (
-      !this.destroyRef.destroyed &&
-      version === this.authEventVersion
-    ) {
-      this.currentUser.set(
-        data.session?.user ?? null,
-      );
-    }
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 }

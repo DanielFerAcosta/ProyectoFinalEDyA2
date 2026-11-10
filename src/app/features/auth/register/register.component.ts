@@ -1,157 +1,114 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
+  AbstractControl,
   FormBuilder,
   ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
   Validators,
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
+const passwordsMatchValidator: ValidatorFn = (
+  control: AbstractControl,
+): ValidationErrors | null => {
+  const password = control.get('password')?.value;
+  const confirmation = control.get('confirmPassword')?.value;
+
+  if (!password || !confirmation) {
+    return null;
+  }
+
+  return password === confirmation
+    ? null
+    : { passwordsMismatch: true };
+};
+
 @Component({
   selector: 'app-register',
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
-  template: `
-    <section class="auth-page">
-      <div class="auth-card">
-        <h1>Crear cuenta</h1>
-        <p>Regístrate para empezar.</p>
-
-        <form [formGroup]="form" (ngSubmit)="submit()">
-          <label for="register-email">Correo electrónico</label>
-          <input
-            id="register-email"
-            type="email"
-            formControlName="email"
-            autocomplete="email"
-            required
-          />
-
-          @if (form.controls.email.touched &&
-               form.controls.email.invalid) {
-            <small class="auth-error">
-              Introduce un correo válido.
-            </small>
-          }
-
-          <label for="register-password">Contraseña</label>
-          <input
-            id="register-password"
-            type="password"
-            formControlName="password"
-            autocomplete="new-password"
-            minlength="8"
-            required
-          />
-
-          <small>Utiliza al menos 8 caracteres.</small>
-
-          <label for="register-confirm">Repetir contraseña</label>
-          <input
-            id="register-confirm"
-            type="password"
-            formControlName="confirmPassword"
-            autocomplete="new-password"
-            required
-          />
-
-          @if (error()) {
-            <p class="auth-error" role="alert">{{ error() }}</p>
-          }
-
-          @if (message()) {
-            <p class="auth-success" role="status">
-              {{ message() }}
-            </p>
-          }
-
-          <button
-            type="submit"
-            [disabled]="loading() || completed()"
-          >
-            {{ loading() ? 'Creando cuenta…' : 'Crear cuenta' }}
-          </button>
-        </form>
-
-        <p>
-          ¿Ya tienes cuenta?
-          <a routerLink="/login">Inicia sesión</a>
-        </p>
-
-        <a routerLink="/">Volver al inicio</a>
-      </div>
-    </section>
-  `,
+  templateUrl: './register.component.html',
+  styleUrl: './register.component.scss',
 })
 export class RegisterComponent {
-  private readonly fb = inject(FormBuilder);
+  private readonly formBuilder = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  readonly loading = signal(false);
-  readonly completed = signal(false);
-  readonly error = signal('');
-  readonly message = signal('');
+  protected showPassword = false;
+  protected showConfirmPassword = false;
+  protected loading = false;
+  protected message = '';
 
-  readonly form = this.fb.nonNullable.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: [
-      '',
-      [Validators.required, Validators.minLength(8)],
-    ],
-    confirmPassword: ['', Validators.required],
-  });
+  protected readonly registerForm = this.formBuilder.nonNullable.group(
+    {
+      name: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(80),
+          Validators.pattern(/\S/),
+        ],
+      ],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword: ['', Validators.required],
+    },
+    {
+      validators: passwordsMatchValidator,
+    },
+  );
 
-  async submit(): Promise<void> {
-    if (this.loading() || this.completed()) {
+  protected togglePassword(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  protected toggleConfirmPassword(): void {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
+
+  protected async onSubmit(): Promise<void> {
+    if (this.loading) {
       return;
     }
 
-    this.error.set('');
-    this.message.set('');
+    this.message = '';
 
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      this.error.set(
-        'Introduce un correo válido y una contraseña de al menos 8 caracteres.',
-      );
+    if (this.registerForm.invalid) {
+      this.registerForm.markAllAsTouched();
       return;
     }
 
-    const { email, password, confirmPassword } =
-      this.form.getRawValue();
+    const { name, email, password } = this.registerForm.getRawValue();
 
-    if (password !== confirmPassword) {
-      this.error.set('Las contraseñas no coinciden.');
+    if (name.trim().length < 2) {
+      this.registerForm.controls.name.setErrors({ minlength: true });
+      this.registerForm.controls.name.markAsTouched();
       return;
     }
 
-    this.loading.set(true);
+    this.loading = true;
 
     try {
-      const result = await this.auth.signUp(email, password);
+      const data = await this.auth.register(name, email, password);
 
-      if (result.needsEmailConfirmation) {
-        this.completed.set(true);
-        this.message.set(
-          'Solicitud enviada. Revisa tu correo para confirmar ' +
-          'la cuenta antes de iniciar sesión.',
-        );
+      this.registerForm.controls.password.reset();
+      this.registerForm.controls.confirmPassword.reset();
 
-        this.form.controls.password.reset();
-        this.form.controls.confirmPassword.reset();
+      if (data.session) {
+        await this.router.navigateByUrl('/panel');
       } else {
-        await this.router.navigateByUrl('/dashboard');
+        this.message =
+          'Si el registro puede completarse con este correo, recibirás un mensaje de confirmación. Revisa tu bandeja y spam. Si ya tenías cuenta, inicia sesión.';
       }
-    } catch (error: unknown) {
-      console.error('Error al registrar:', error);
-
-      this.error.set(
-        'No se pudo completar el registro. Revisa tu conexión ' +
-        'y los requisitos de contraseña del proyecto.',
-      );
+    } catch {
+      this.message =
+        'No fue posible completar el registro. Revisa los datos, la conexión e inténtalo más tarde.';
     } finally {
-      this.loading.set(false);
+      this.loading = false;
     }
   }
 }

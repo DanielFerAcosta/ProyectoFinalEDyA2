@@ -12,24 +12,38 @@ export const routes: Routes = [
     title: 'Entrena | Entrenamiento y bienestar',
   },
   {
-  path: 'login',
-  loadComponent: () =>
-    import('./features/auth/login/login.component')
-      .then((m) => m.LoginComponent),
-},
-{
-  path: 'register',
-  loadComponent: () =>
-    import('./features/auth/register/register.component')
-      .then((m) => m.RegisterComponent),
-},
-{
-  path: 'dashboard',
-  canActivate: [authGuard],
-  loadComponent: () =>
-    import('./features/dashboard/dashboard.component')
-      .then((m) => m.DashboardComponent),
-},
+    path: 'login',
+    loadComponent: () =>
+      import('./features/auth/login/login.component').then(
+        (component) => component.LoginComponent,
+      ),
+    title: 'Iniciar sesión | Entrena',
+  },
+  {
+    path: 'registro',
+    loadComponent: () =>
+      import('./features/auth/register/register.component').then(
+        (component) => component.RegisterComponent,
+      ),
+    title: 'Crear cuenta | Entrena',
+  },
+  {
+    path: 'panel',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/dashboard/dashboard.component').then(
+        (component) => component.DashboardComponent,
+      ),
+    title: 'Mi panel | Entrena',
+  },
+  {
+    path: 'ejercicios',
+    loadComponent: () =>
+      import('./features/catalog/catalog.component').then(
+        (component) => component.CatalogComponent,
+      ),
+    title: 'Catálogo de ejercicios | Entrena',
+  },
   {
     path: '**',
     redirectTo: '',
