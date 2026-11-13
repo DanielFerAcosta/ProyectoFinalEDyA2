@@ -1,65 +1,42 @@
-import { Component, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  inject,
+} from '@angular/core';
+import {
+  AuthService,
+  UserProfile,
+} from '../../core/services/auth.service';
+import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [RouterLink],
-  template: `
-    <section class="auth-page">
-      <div class="auth-card">
-        <h1>Mi panel</h1>
-
-        <p>Has iniciado sesión como:</p>
-        <p>{{ auth.user()?.email }}</p>
-
-        <p>
-          Aquí conectaremos las funcionalidades privadas
-          de la aplicación.
-        </p>
-
-        @if (error()) {
-          <p class="auth-error" role="alert">{{ error() }}</p>
-        }
-
-        <button
-          type="button"
-          (click)="logout()"
-          [disabled]="loading()"
-        >
-          {{ loading() ? 'Saliendo…' : 'Cerrar sesión' }}
-        </button>
-
-        <p><a routerLink="/">Volver al inicio</a></p>
-      </div>
-    </section>
-  `,
+  imports: [NavbarComponent],
+  templateUrl: './dashboard.component.html',
+  styleUrl: './dashboard.component.scss',
 })
-export class DashboardComponent {
-  readonly auth = inject(AuthService);
+export class DashboardComponent implements OnInit {
+  protected readonly auth = inject(AuthService);
 
-  private readonly router = inject(Router);
+  private readonly changeDetector = inject(ChangeDetectorRef);
 
-  readonly loading = signal(false);
-  readonly error = signal('');
+  protected profile: UserProfile | null = null;
+  protected loading = true;
+  protected message = '';
 
-  async logout(): Promise<void> {
-    if (this.loading()) {
-      return;
-    }
-
-    this.loading.set(true);
-    this.error.set('');
-
+  async ngOnInit(): Promise<void> {
     try {
-      await this.auth.signOut();
-      await this.router.navigateByUrl('/login');
+      this.profile = await this.auth.getProfile();
     } catch (error: unknown) {
-      console.error('Error al cerrar sesión:', error);
-      this.error.set('No se pudo cerrar sesión. Inténtalo de nuevo.');
+      console.error('Error al cargar el perfil:', error);
+
+      this.message =
+        'No se pudo cargar tu perfil. Comprueba la conexión y la configuración de la base de datos.';
     } finally {
-      this.loading.set(false);
+      this.loading = false;
+      this.changeDetector.markForCheck();
     }
   }
 }

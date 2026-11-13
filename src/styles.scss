@@ -119,3 +119,40 @@ textarea:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+}
+
+.button--primary {
+  background: var(--color-primary);
+  color: var(--color-background);
+
+  &:hover {
+    background: #b5ef60;
+  }
+}
+
+.button--secondary {
+  border-color: var(--color-border);
+  background: transparent;
+  color: var(--color-text);
+
+  &:hover {
+    border-color: var(--color-muted);
+    background: var(--color-surface);
+  }
+}
+
+/* Preferencia de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

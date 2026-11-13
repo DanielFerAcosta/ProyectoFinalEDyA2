@@ -27,6 +27,15 @@ export const routes: Routes = [
     title: 'Crear cuenta | Entrena',
   },
   {
+    path: 'panel',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/dashboard/dashboard.component').then(
+        (component) => component.DashboardComponent,
+      ),
+    title: 'Mi panel | Entrena',
+  },
+  {
     path: 'ejercicios',
     loadComponent: () =>
       import('./features/catalog/catalog.component').then(
@@ -34,6 +43,38 @@ export const routes: Routes = [
       ),
     title: 'Catálogo de ejercicios | Entrena',
   },
+  {
+    path: 'rutinas',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/routines/routines.component').then(
+        (component) => component.RoutinesComponent,
+      ),
+    title: 'Mis rutinas | Entrena',
+  },
+
+  {
+  path: 'entrenamiento',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import(
+      './features/training-session/training-session.component'
+    ).then(
+      (component) => component.TrainingSessionComponent,
+    ),
+  title: 'Elegir entrenamiento | Entrena',
+},
+{
+  path: 'entrenamiento/:routineId',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import(
+      './features/training-session/training-session.component'
+    ).then(
+      (component) => component.TrainingSessionComponent,
+    ),
+  title: 'Sesión de entrenamiento | Entrena',
+},
   {
     path: '**',
     redirectTo: '',
