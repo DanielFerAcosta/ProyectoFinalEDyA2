@@ -1,1 +1,35 @@
-<p>dashboard works!</p>
+<app-navbar />
+
+<main class="container panel">
+  <p class="panel__eyebrow">ÁREA PRIVADA</p>
+
+  @if (loading) {
+    <p role="status">Cargando perfil...</p>
+  } @else {
+    <h1>
+      Hola, {{ profile?.full_name ?? 'bienvenido' }}.
+    </h1>
+
+    <p class="panel__description">
+      Tu sesión está activa. Aquí construiremos tu panel de entrenamiento.
+    </p>
+
+    <section class="account-card" aria-labelledby="account-title">
+      <h2 id="account-title">Tu cuenta</h2>
+
+      <dl>
+        <dt>Correo</dt>
+        <dd>{{ auth.user()?.email }}</dd>
+
+        <dt>Nombre</dt>
+        <dd>{{ profile?.full_name ?? 'No disponible' }}</dd>
+      </dl>
+    </section>
+  }
+
+  @if (message) {
+    <p class="panel__message" role="status">
+      {{ message }}
+    </p>
+  }
+</main>
