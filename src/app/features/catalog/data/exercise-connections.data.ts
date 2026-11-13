@@ -1,3 +1,4 @@
+import { EXERCISES } from './excercises.data';
 import { EXERCISES } from './exercises.data';
 import { ExerciseGraph } from '../structures/exercise-graph';
 
