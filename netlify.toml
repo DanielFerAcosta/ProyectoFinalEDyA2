@@ -1,0 +1,15 @@
+[build]
+  command = "npm run build"
+  # Angular's application builder writes static files to dist/<project>/browser.
+  # The Angular runtime plugin fails the build if this doesn't match exactly.
+  publish = "dist/entrena-web/browser"
+
+[build.environment]
+  # Angular 22 requires Node ^22.22.3 or ^24.15.0
+  NODE_VERSION = "24"
+
+# Client-side routing: serve index.html for deep links like /rutinas or /panel
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
