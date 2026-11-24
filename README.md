@@ -1,59 +1,43 @@
-# EntrenaWeb
+# Entrena
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.6.
+Página web para organizar el entrenamiento físico: catálogo de ejercicios, rutinas propias, entrenamiento paso a paso con progreso en tiempo real y registro diario de agua y sueño.
 
-## Development server
+Proyecto final de Estructuras de Datos y Algoritmos II, Universidad Autónoma de Occidente.
 
-To start a local development server, run:
+## Integrantes
+
+- Daniel Fernando Acosta Granada ([DanielFerAcosta](https://github.com/DanielFerAcosta))
+- Christian David Home Acero ([Davidev77](https://github.com/Davidev77))
+
+## Enlaces
+
+- **Propuesta gráfica (Figma):** [Propuesta gráfica Proyecto EDyA2](https://www.figma.com/design/kWXrFf2OypeW14V1uYK89Z/Propuesta-Grafica-Proyecto-EDyA2?node-id=0-1)
+- **Página desplegada (Netlify):proyectofinaledya2.netlify.app/
+- **Informe final:** [Informe_final_EDyA2.md](./Informe_final_EDyA2.md) · [versión en Google Docs](https://docs.google.com/document/d/1y47T-eoG3qtsnkivH_O1s__z6WQfWT6Q9gvY_cuWwok/edit?usp=sharing)
+
+## Tecnologías
+
+- Angular y TypeScript
+- SCSS
+- Supabase (usuarios, base de datos y tiempo real)
+
+## Estructuras de datos
+
+| Estructura | Dónde se usa |
+|---|---|
+| Pila | Deshacer cambios al crear una rutina |
+| Cola | Orden de los ejercicios durante el entrenamiento |
+| Trie | Buscador del catálogo de ejercicios |
+| Min-heap | Ordenar las rutinas de la más corta a la más larga |
+| Grafo | Ejercicios alternativos en el catálogo |
+
+La explicación de cada una está en el informe final.
+
+## Cómo ejecutarlo
 
 ```bash
+npm install
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Luego abrir `http://localhost:4200/`.
