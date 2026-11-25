@@ -12,7 +12,7 @@ Proyecto final de Estructuras de Datos y Algoritmos II, Universidad Autónoma de
 ## Enlaces
 
 - **Propuesta gráfica (Figma):** [Propuesta gráfica Proyecto EDyA2](https://www.figma.com/design/kWXrFf2OypeW14V1uYK89Z/Propuesta-Grafica-Proyecto-EDyA2?node-id=0-1)
-- **Página desplegada (Netlify):proyectofinaledya2.netlify.app/
+- **Página desplegada (Netlify):** proyectofinaledya2.netlify.app/
 - **Informe final:** [Informe_final_EDyA2.md](./Informe_final_EDyA2.md) · [versión en Google Docs](https://docs.google.com/document/d/1y47T-eoG3qtsnkivH_O1s__z6WQfWT6Q9gvY_cuWwok/edit?usp=sharing)
 
 ## Tecnologías
