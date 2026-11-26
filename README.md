@@ -11,11 +11,13 @@ Proyecto final de Estructuras de Datos y Algoritmos II, Universidad Autónoma de
 
 ## Enlaces
 
-- **Página desplegada (Netlify):** [proyectofinaledya2.netlify.app](https://proyectofinaledya2.netlify.app/)
 - **Propuesta gráfica (Figma):**
-- [Diseño de las pantallas](https://www.figma.com/design/qlnwpoSz7XjNz47p8dqM6z/Propuesta-Grafica-Proyecto-FInal-EDyA2?node-id=0-1&t=1iElqNoaICgCPdDi-1)
-- [Prototipo interactivo](https://www.figma.com/proto/qlnwpoSz7XjNz47p8dqM6z/Propuesta-Grafica-Proyecto-FInal-EDyA2?node-id=1-3&p=f&t=gp38CG1Xo1e0Gnze-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A3)
-- **Informe final:** [versión en Google Docs](https://docs.google.com/document/d/1y47T-eoG3qtsnkivH_O1s__z6WQfWT6Q9gvY_cuWwok/edit?usp=sharing)
+  - [Diseño](https://www.figma.com/design/qlnwpoSz7XjNz47p8dqM6z/Propuesta-Grafica-Proyecto-FInal-EDyA2?node-id=0-1&t=1iElqNoaICgCPdDi-1)
+  - [Prototipo](https://www.figma.com/proto/qlnwpoSz7XjNz47p8dqM6z/Propuesta-Grafica-Proyecto-FInal-EDyA2?node-id=1-3&p=f&t=gp38CG1Xo1e0Gnze-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A3)
+- **Página desplegada (Netlify):** [proyectofinaledya2.netlify.app](https://proyectofinaledya2.netlify.app/)
+- **Informe final:** [docs/Informe.pdf](./docs/Informe.pdf)
+- **Repositorio:** [DanielFerAcosta/ProyectoFinalEDyA2](https://github.com/DanielFerAcosta/ProyectoFinalEDyA2)
+
 
 ## Tecnologías
 
@@ -37,7 +39,11 @@ La explicación de cada una está en el informe final.
 
 ## Cómo ejecutarlo
 
+Requisitos: Node.js (versión LTS) y Angular CLI.
+
 ```bash
+git clone https://github.com/DanielFerAcosta/ProyectoFinalEDyA2.git
+cd ProyectoFinalEDyA2
 npm install
 ng serve
 ```
