@@ -53,6 +53,35 @@
           recomendación de entrenamiento.
         </p>
 
+        <div class="routine-history">
+          <button
+            class="button button--secondary"
+            type="button"
+            [disabled]="
+              historySize() === 0 ||
+              saving() ||
+              deletingId() !== null ||
+              loading()
+            "
+            (click)="undoSelection()"
+          >
+            Deshacer último cambio
+          </button>
+
+          <span class="routine-history__count">
+            Cambios disponibles: {{ historySize() }}
+          </span>
+        </div>
+
+        <p class="routine-history__help">
+          Deshacer solo recupera la selección anterior de los ejercicios.
+          No cambia el nombre, las series ni las repeticiones.
+        </p>
+
+        <p class="routine-history__message" role="status">
+          {{ historyMessage() }}
+        </p>
+
         <div class="routine-form__exercises">
           @for (exercise of exerciseDrafts; track exercise.exercise_id) {
             <div class="exercise-option">
@@ -60,7 +89,8 @@
                 <input
                   type="checkbox"
                   [name]="'selected-' + exercise.exercise_id"
-                  [(ngModel)]="exercise.selected"
+                  [ngModel]="exercise.selected"
+                  (ngModelChange)="changeExerciseSelection(exercise, $event)"
                 />
 
                 <span>{{ exercise.name }}</span>

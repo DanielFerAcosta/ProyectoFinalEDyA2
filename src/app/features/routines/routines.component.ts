@@ -5,6 +5,7 @@ import {
   signal,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { Stack } from './structures/stack';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
@@ -18,6 +19,11 @@ interface ExerciseDraft {
   selected: boolean;
   sets: number;
   repetitions: number;
+}
+
+interface SelectionChange {
+  exerciseId: string;
+  previousSelected: boolean;
 }
 
 @Component({
@@ -41,6 +47,10 @@ export class RoutinesComponent implements OnInit {
       exercise.name,
     ]),
   );
+
+  private readonly selectionHistory = new Stack<SelectionChange>();
+  protected readonly historySize = signal(0);
+  protected readonly historyMessage = signal('');
 
   protected readonly routines = signal<Routine[]>([]);
   protected readonly loading = signal(true);
@@ -225,6 +235,58 @@ export class RoutinesComponent implements OnInit {
       ?? `Ejercicio no disponible (${exerciseId})`;
   }
 
+  protected changeExerciseSelection(
+    exercise: ExerciseDraft,
+    selected: boolean,
+  ): void {
+    if (this.saving() || this.deletingId() || this.loading()) {
+      return;
+    }
+
+    if (exercise.selected === selected) {
+      return;
+    }
+
+    this.selectionHistory.push({
+      exerciseId: exercise.exercise_id,
+      previousSelected: exercise.selected,
+    });
+
+    exercise.selected = selected;
+    this.historySize.set(this.selectionHistory.size);
+    this.historyMessage.set('');
+    this.formError.set('');
+    this.successMessage.set('');
+  }
+
+  protected undoSelection(): void {
+    if (this.saving() || this.deletingId() || this.loading()) {
+      return;
+    }
+
+    const change = this.selectionHistory.pop();
+    this.historySize.set(this.selectionHistory.size);
+
+    if (!change) {
+      return;
+    }
+
+    const exercise = this.exerciseDrafts.find(
+      (item) => item.exercise_id === change.exerciseId,
+    );
+
+    if (!exercise) {
+      return;
+    }
+
+    exercise.selected = change.previousSelected;
+    this.formError.set('');
+    this.successMessage.set('');
+    this.historyMessage.set(
+      `Se deshizo el cambio de selección de ${exercise.name}.`,
+    );
+  }
+
   private resetDraft(form: NgForm): void {
     form.resetForm();
 
@@ -235,5 +297,9 @@ export class RoutinesComponent implements OnInit {
       exercise.sets = 1;
       exercise.repetitions = 1;
     }
+
+    this.selectionHistory.clear();
+    this.historySize.set(0);
+    this.historyMessage.set('');
   }
 }
